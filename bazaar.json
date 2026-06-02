@@ -1,0 +1,91 @@
+{
+  "name": "x402 Crypto Intelligence API",
+  "version": "1.0.0",
+  "description": "AI agent crypto data API — pay per request in USDC on Base. Real-time cryptocurrency prices, market data, trending tokens, DeFi metrics, and more.",
+  "url": "http://43.157.206.248:4020",
+  "documentation": "http://43.157.206.248:4020/docs",
+  "contact": {
+    "name": "x402 Crypto API",
+    "url": "https://github.com/yourname/x402-crypto-api"
+  },
+  "payment": {
+    "protocol": "x402",
+    "network": "eip155:8453",
+    "token": "USDC",
+    "scheme": "exact"
+  },
+  "category": "crypto-data",
+  "tags": [
+    "crypto",
+    "cryptocurrency",
+    "prices",
+    "market-data",
+    "defi",
+    "ai-agent",
+    "x402",
+    "microtransactions",
+    "real-time"
+  ],
+  "endpoints": [
+    {
+      "path": "/api/v1/price/{coin_id}",
+      "method": "GET",
+      "price": "$0.003",
+      "description": "Token price & 24h market data"
+    },
+    {
+      "path": "/api/v1/trending",
+      "method": "GET",
+      "price": "$0.005",
+      "description": "Currently trending crypto tokens"
+    },
+    {
+      "path": "/api/v1/market",
+      "method": "GET",
+      "price": "$0.003",
+      "description": "Global crypto market overview"
+    },
+    {
+      "path": "/api/v1/top-coins",
+      "method": "GET",
+      "price": "$0.005",
+      "description": "Top coins by market cap"
+    },
+    {
+      "path": "/api/v1/search",
+      "method": "GET",
+      "price": "$0.002",
+      "description": "Search coins by name/symbol"
+    },
+    {
+      "path": "/api/v1/defi",
+      "method": "GET",
+      "price": "$0.005",
+      "description": "DeFi protocols by TVL"
+    },
+    {
+      "path": "/api/v1/fear-greed",
+      "method": "GET",
+      "price": "$0.002",
+      "description": "Fear & Greed Index"
+    },
+    {
+      "path": "/api/v1/gas",
+      "method": "GET",
+      "price": "$0.002",
+      "description": "Multi-chain gas prices"
+    }
+  ],
+  "freeEndpoints": [
+    {
+      "path": "/",
+      "method": "GET",
+      "description": "Service info & endpoint list"
+    },
+    {
+      "path": "/health",
+      "method": "GET",
+      "description": "Health check"
+    }
+  ]
+}
