@@ -1,0 +1,232 @@
+{
+  "version": "1",
+  "provider": {
+    "name": "Hermes Crypto Intelligence",
+    "handle": "hermes-crypto",
+    "description": "Real-time crypto intelligence API — 26 endpoints covering prices, DEX data, DeFi TVL, gas, wallet analytics, and contract ABI lookup.",
+    "website": "https://states-touch-seniors-drink.trycloudflare.com",
+    "api": "https://states-touch-seniors-drink.trycloudflare.com",
+    "twitter_handle": "@faisalnugroho",
+    "contact_email": "vantjxrg@gmail.com"
+  },
+  "partnerships": [
+    {
+      "marketplace": "shadowfeed",
+      "marketplace_url": "https://shadowfeed.app",
+      "marketplace_handle": "hermes-crypto",
+      "marketplace_verification_url": "https://api.shadowfeed.app/providers/hermes-crypto/manifest",
+      "integration_mode": "partner_bridge",
+      "partner_endpoint": "https://states-touch-seniors-drink.trycloudflare.com"
+    }
+  ],
+  "feeds": [
+    {
+      "slug": "price",
+      "name": "Token Price & Market Data",
+      "category": "market-data",
+      "path": "/api/v1/price/{coin_id}",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "trending",
+      "name": "Trending Tokens",
+      "category": "market-data",
+      "path": "/api/v1/trending",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "market",
+      "name": "Global Market Overview",
+      "category": "market-data",
+      "path": "/api/v1/market",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "top-coins",
+      "name": "Top Coins by Market Cap",
+      "category": "market-data",
+      "path": "/api/v1/top-coins",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "search",
+      "name": "Search Coins",
+      "category": "market-data",
+      "path": "/api/v1/search",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "defi",
+      "name": "DeFi Protocols by TVL",
+      "category": "defi",
+      "path": "/api/v1/defi",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "fear-greed",
+      "name": "Fear & Greed Index",
+      "category": "sentiment",
+      "path": "/api/v1/fear-greed",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "gas",
+      "name": "Multi-chain Gas Prices",
+      "category": "infrastructure",
+      "path": "/api/v1/gas",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "dex-token",
+      "name": "DEX Trading Pairs for Token",
+      "category": "dex",
+      "path": "/api/v1/dex/token/{chain}/{address}",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "dex-pair",
+      "name": "DEX Pair Details",
+      "category": "dex",
+      "path": "/api/v1/dex/pair/{chain}/{pair_id}",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "dex-search",
+      "name": "Search DEX Tokens",
+      "category": "dex",
+      "path": "/api/v1/dex/search",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "dex-trending",
+      "name": "Trending DEX Tokens",
+      "category": "dex",
+      "path": "/api/v1/dex/trending",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "dex-boosted",
+      "name": "Top Boosted Tokens",
+      "category": "dex",
+      "path": "/api/v1/dex/boosted",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "protocols",
+      "name": "All DeFi Protocols",
+      "category": "defi",
+      "path": "/api/v1/protocols",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "tvl",
+      "name": "Protocol TVL",
+      "category": "defi",
+      "path": "/api/v1/tvl/{protocol}",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "chains",
+      "name": "Supported Chains",
+      "category": "infrastructure",
+      "path": "/api/v1/chains",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "wallet-balance",
+      "name": "Wallet Native Balance",
+      "category": "wallet",
+      "path": "/api/v1/wallet/{chain}/{address}",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "gas-multi",
+      "name": "Gas Across 6 Chains",
+      "category": "infrastructure",
+      "path": "/api/v1/gas/multi",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "wallet-transactions",
+      "name": "Wallet Transaction History",
+      "category": "wallet",
+      "path": "/api/v1/wallet/{chain}/{address}/transactions",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "wallet-tokens",
+      "name": "ERC-20 Token Transfers",
+      "category": "wallet",
+      "path": "/api/v1/wallet/{chain}/{address}/tokens",
+      "method": "GET",
+      "suggested_price_stx": 0.005
+    },
+    {
+      "slug": "wallet-internal",
+      "name": "Internal Transactions",
+      "category": "wallet",
+      "path": "/api/v1/wallet/{chain}/{address}/internal",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "contract-abi",
+      "name": "Contract ABI + Source Code",
+      "category": "contract",
+      "path": "/api/v1/contract/{chain}/{address}/abi",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "token-info",
+      "name": "Token Info (Name, Supply, Holders)",
+      "category": "token",
+      "path": "/api/v1/token/{chain}/{address}/info",
+      "method": "GET",
+      "suggested_price_stx": 0.003
+    },
+    {
+      "slug": "gas-chain",
+      "name": "Etherscan Gas Tracker (Accurate)",
+      "category": "infrastructure",
+      "path": "/api/v1/gas/{chain}",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    },
+    {
+      "slug": "latest-block",
+      "name": "Latest Block Number",
+      "category": "infrastructure",
+      "path": "/api/v1/block/{chain}/latest",
+      "method": "GET",
+      "suggested_price_stx": 0.002
+    }
+  ],
+  "supported_payments": [
+    {
+      "scheme": "partner_bridge",
+      "marketplace": "shadowfeed",
+      "asset": "STX",
+      "settlement_network": "stacks:mainnet"
+    }
+  ]
+}

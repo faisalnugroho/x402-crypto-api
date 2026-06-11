@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "x402-crypto"
+version = "1.0.0"
+description = "Python SDK for x402 Crypto Intelligence API"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = ["httpx>=0.27.0"]
+
+[project.urls]
+Homepage = "https://github.com/faisalnugroho/x402-crypto-api"

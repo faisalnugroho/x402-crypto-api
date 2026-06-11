@@ -1,31 +1,9 @@
-# Environment variables
-.env
 
-# CDP API keys (NEVER commit these)
+.env
 .cdp_key
 .cdp_secret
-
-# Python
+.etherscan_key
+tracker.db
 __pycache__/
 *.pyc
-*.pyo
 venv/
-.venv/
-*.egg-info/
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
