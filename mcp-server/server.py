@@ -19,6 +19,14 @@ async def _get(path: str, params: dict = None) -> dict:
     r.raise_for_status()
     return r.json()
 
+async def _post(path: str, body: dict) -> dict:
+    """POST helper for AI endpoints."""
+    r = await client.post(f"{BASE}{path}", json=body)
+    if r.status_code == 402:
+        return {"error": "Payment required (x402 protocol)", "price": r.headers.get("x-payment-required", "unknown")}
+    r.raise_for_status()
+    return r.json()
+
 # === FREE TOOLS ===
 @mcp.tool()
 async def crypto_health() -> dict:
@@ -186,6 +194,33 @@ async def latest_block(chain: str) -> dict:
 async def whale_alerts(min_usd: float = 100000) -> dict:
     """Get recent large ETH transfers (whale movements). Default: $100k+ transfers."""
     return await _get("/api/v1/whale/ethereum", {"min_usd": min_usd})
+
+# === AI VERTICAL MICRO-SAAS (v4.0) ===
+@mcp.tool()
+async def ai_legal_review(text: str, jurisdiction: str = "general") -> dict:
+    """AI legal contract review. Returns risk level (low/medium/high), risk score (0-100), key terms, red flags, and recommendations. Supports jurisdiction hint: 'indonesia', 'us', 'eu', 'general'."""
+    return await _post("/api/v1/ai/legal-review", {"text": text, "jurisdiction": jurisdiction})
+
+@mcp.tool()
+async def ai_tax_id(annual_income_idr: float, ptkp_status: str = "TK/0", deductions_idr: float = 0, has_npwp: bool = True, income_type: str = "employee") -> dict:
+    """Indonesian PPh 21 tax estimator. Uses UU HPP progressive brackets (5/15/25/30/35%). ptkp_status: TK/0, TK/1, TK/2, TK/3, K/0, K/1, K/2, K/3. income_type: 'employee', 'freelance', 'business'. Returns annual + monthly PPh estimate, effective rate, and per-bracket breakdown."""
+    return await _post("/api/v1/ai/tax-id", {
+        "annual_income_idr": annual_income_idr,
+        "ptkp_status": ptkp_status,
+        "deductions_idr": deductions_idr,
+        "has_npwp": has_npwp,
+        "income_type": income_type,
+    })
+
+@mcp.tool()
+async def ai_invoice_ocr(text: str) -> dict:
+    """Parse raw invoice/receipt text (paste from phone OCR or email) into structured JSON. Returns vendor, invoice number, dates, items, subtotal, PPN, total, payment method."""
+    return await _post("/api/v1/ai/invoice-ocr", {"text": text})
+
+@mcp.tool()
+async def ai_sentiment(text: str, language: str = "auto") -> dict:
+    """Multi-language sentiment analysis. Returns score (-1 to 1), label (positive/neutral/negative), confidence, intent (complaint/praise/inquiry/etc), entities, and topics."""
+    return await _post("/api/v1/ai/sentiment", {"text": text, "language": language})
 
 if __name__ == "__main__":
     mcp.run()

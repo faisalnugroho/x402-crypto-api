@@ -34,6 +34,14 @@ class X402Client:
             return {"error": "Payment required (x402)", "headers": dict(r.headers)}
         r.raise_for_status()
         return r.json()
+
+    async def _post(self, path: str, body: dict) -> dict:
+        assert self._client is not None
+        r = await self._client.post(f"{self.base_url}{path}", json=body)
+        if r.status_code == 402:
+            return {"error": "Payment required (x402)", "headers": dict(r.headers)}
+        r.raise_for_status()
+        return r.json()
     
     # Free endpoints
     async def health(self) -> dict:
@@ -142,3 +150,28 @@ class X402Client:
     # Fear & Greed (paid)
     async def fear_greed(self) -> dict:
         return await self._get("/api/v1/fear-greed")
+
+    # AI Vertical Micro-SaaS (v4.0) — POST
+    async def ai_legal_review(self, text: str, jurisdiction: str = "general") -> dict:
+        """AI legal contract review. Returns risk analysis, key terms, red flags, recommendations."""
+        return await self._post("/api/v1/ai/legal-review", {"text": text, "jurisdiction": jurisdiction})
+
+    async def ai_tax_id(self, annual_income_idr: float, ptkp_status: str = "TK/0",
+                        deductions_idr: float = 0, has_npwp: bool = True,
+                        income_type: str = "employee") -> dict:
+        """Indonesian PPh 21 tax estimator. Uses UU HPP progressive brackets."""
+        return await self._post("/api/v1/ai/tax-id", {
+            "annual_income_idr": annual_income_idr,
+            "ptkp_status": ptkp_status,
+            "deductions_idr": deductions_idr,
+            "has_npwp": has_npwp,
+            "income_type": income_type,
+        })
+
+    async def ai_invoice_ocr(self, text: str) -> dict:
+        """Parse raw invoice/receipt text into structured JSON. Use after phone OCR or email extraction."""
+        return await self._post("/api/v1/ai/invoice-ocr", {"text": text})
+
+    async def ai_sentiment(self, text: str, language: str = "auto") -> dict:
+        """Multi-language sentiment + intent + entity extraction."""
+        return await self._post("/api/v1/ai/sentiment", {"text": text, "language": language})

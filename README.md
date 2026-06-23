@@ -89,6 +89,16 @@ curl http://43.157.206.248:4020/api/v1/price/bitcoin
 | `GET /api/v1/movers` | $0.003 | Top gainers/losers |
 | `GET /api/v1/prices` | $0.002 | Batch prices |
 
+### AI Vertical Micro-SaaS (v4.0, $0.005-$0.020) — POST
+| Endpoint | Price | Description |
+|----------|-------|-------------|
+| `POST /api/v1/ai/legal-review` | $0.020 | AI legal contract review — risk, key terms, red flags |
+| `POST /api/v1/ai/tax-id` | $0.015 | Indonesian PPh 21 tax estimator (UU HPP progressive) |
+| `POST /api/v1/ai/invoice-ocr` | $0.010 | AI invoice/receipt parser — text to structured JSON |
+| `POST /api/v1/ai/sentiment` | $0.005 | AI text sentiment + intent + entity extraction (multi-language) |
+
+All AI endpoints powered by Xiaomi MiMo (mimo-v2-flash). Accept JSON body, return JSON response.
+
 ## How x402 Works
 
 1. Client sends GET request to a paid endpoint

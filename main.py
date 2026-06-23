@@ -25,6 +25,7 @@ from endpoints import router as v2_router
 from premium_endpoints import router as premium_router
 from cache import cached, cache, TTL_PRICE, TTL_TRENDING, TTL_MARKET, TTL_DEFI, _cleanup_loop
 from etherscan_endpoints import router as etherscan_router
+from ai_endpoints import router as ai_router
 from rate_limiter import RateLimiter
 
 logging.basicConfig(level=logging.INFO)
@@ -50,11 +51,17 @@ cdp_key_id = os.environ.get("CDP_API_KEY_ID") or _read_file(CDP_KEY_FILE)
 cdp_key_secret = os.environ.get("CDP_API_KEY_SECRET") or _read_file(CDP_SECRET_FILE)
 NETWORK = os.environ.get("NETWORK") or _read_file(ENV_FILE).replace("NETWORK=", "").strip() or "eip155:8453"
 
+# Builder Code (ERC-8021) — declares seller app code in 402 responses.
+# This is the "a" field in the x402 builder-code extension. Buyers will
+# auto-echo this back at payment time; the CDP facilitator CBOR-encodes
+# {a, s, w} into an ERC-8021 Schema 2 calldata suffix at settlement.
+BUILDER_CODE_APP = "bc_1g4yopsy"
+
 # --- App ---
 app = FastAPI(
     title="x402 Crypto Intelligence API",
-    description="AI agent crypto data API — pay per request in USDC on Base. No API keys needed.",
-    version="3.0.0",
+    description="AI agent crypto data API + AI micro-SaaS — pay per request in USDC on Base. No API keys needed.",
+    version="4.0.0",
     docs_url="/docs",
 )
 
@@ -72,6 +79,7 @@ app.add_middleware(RateLimiter, free_rate=30, paid_rate=300)
 app.include_router(v2_router)
 app.include_router(premium_router)
 app.include_router(etherscan_router)
+app.include_router(ai_router)
 
 # --- x402 Setup ---
 class CDPAuthProvider:
@@ -126,43 +134,43 @@ routes = {
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Token price & 24h market data (BTC, ETH, SOL, etc)",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/trending": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Currently trending crypto tokens",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/market": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Global crypto market overview",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/top-coins": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Top N coins by market cap",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/search": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Search coins by name or symbol",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/defi": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Top DeFi protocols by TVL",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/fear-greed": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Crypto Fear & Greed Index",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "crypto-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/gas": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
@@ -174,143 +182,168 @@ routes = {
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="All DEX trading pairs for a token",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/dex/pair/:chain/:pair_id": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Detailed DEX pair info",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/dex/search": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Search DEX tokens",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/dex/trending": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Trending tokens on DEX",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/dex/boosted": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Top boosted tokens on DEX",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "dex-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     # DeFiLlama
     "GET /api/v1/protocols": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="All DeFi protocols with TVL",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "defi-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "defi-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/tvl/:protocol": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Protocol TVL history",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "defi-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "defi-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/chains": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="All supported blockchain chains",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     # Wallet
     "GET /api/v1/wallet/:chain/:address": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="EVM wallet native balance + USD",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/gas/multi": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Gas prices across 6 chains",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     # Etherscan
     "GET /api/v1/wallet/:chain/:address/transactions": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Wallet transaction history",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/wallet/:chain/:address/tokens": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="ERC-20 token transfer history",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/wallet/:chain/:address/internal": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Internal transactions",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "wallet-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/contract/:chain/:address/abi": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Smart contract ABI + source",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "contract-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "contract-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/token/:chain/:address/info": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="ERC-20 token info",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "token-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "token-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/gas/:chain": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Etherscan gas tracker",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/block/:chain/latest": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Latest block number",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}},
+        extensions={"bazaar": {"discoverable": True, "category": "chain-data"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     # Premium
     "GET /api/v1/whale/ethereum": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.010", network=NETWORK)],
         description="Whale alerts — large ETH transfers",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/sentiment": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Market sentiment (Fear & Greed + trending)",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/screener": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
         description="Token screener by mcap/volume/change",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/portfolio": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.008", network=NETWORK)],
         description="Multi-wallet portfolio tracker",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/movers": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.003", network=NETWORK)],
         description="Top gainers & losers (24h)",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
     "GET /api/v1/prices": RouteConfig(
         accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.002", network=NETWORK)],
         description="Batch price lookup (up to 50 tokens)",
         mime_type="application/json",
-        extensions={"bazaar": {"discoverable": True, "category": "premium"}},
+        extensions={"bazaar": {"discoverable": True, "category": "premium"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
+    ),
+    # === AI Vertical Micro-SaaS (v4.0) ===
+    "POST /api/v1/ai/legal-review": RouteConfig(
+        accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.020", network=NETWORK)],
+        description="AI legal contract review — risk analysis, key terms, red flags",
+        mime_type="application/json",
+        extensions={"bazaar": {"discoverable": True, "category": "ai-services"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
+    ),
+    "POST /api/v1/ai/tax-id": RouteConfig(
+        accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.015", network=NETWORK)],
+        description="Indonesian PPh 21 tax estimator (UU HPP progressive brackets)",
+        mime_type="application/json",
+        extensions={"bazaar": {"discoverable": True, "category": "ai-services"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
+    ),
+    "POST /api/v1/ai/invoice-ocr": RouteConfig(
+        accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.010", network=NETWORK)],
+        description="AI invoice/receipt parser — text to structured JSON",
+        mime_type="application/json",
+        extensions={"bazaar": {"discoverable": True, "category": "ai-services"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
+    ),
+    "POST /api/v1/ai/sentiment": RouteConfig(
+        accepts=[PaymentOption(scheme="exact", pay_to=PAY_TO, price="$0.005", network=NETWORK)],
+        description="AI text sentiment + intent + entity extraction (multi-language)",
+        mime_type="application/json",
+        extensions={"bazaar": {"discoverable": True, "category": "ai-services"}, "builder-code": {"info": {"a": "bc_1g4yopsy"}}},
     ),
 }
 
@@ -451,7 +484,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "timestamp": time.time(), "version": "3.0.0"}
+    return {"status": "ok", "timestamp": time.time(), "version": "4.0.0"}
 
 
 @app.get("/robots.txt", response_class=HTMLResponse)
@@ -847,7 +880,7 @@ LANDING_HTML = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>x402 Crypto Intelligence API — Pay Per Request in USDC</title>
-<meta name="description" content="AI agent crypto data API. 30+ endpoints. Pay per request in USDC on Base. No API keys needed.">
+<meta name="description" content="AI agent crypto data API + AI micro-SaaS. 35 endpoints. Pay per request in USDC on Base. No API keys needed.">
 <style>
   :root { --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e; --accent: #00d4aa; --accent2: #7c5cfc; --text: #e0e0e8; --muted: #6b7280; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -867,7 +900,7 @@ LANDING_HTML = """<!DOCTYPE html>
   .card h3 { color: var(--accent); font-size: 16px; margin-bottom: 8px; }
   .card p { color: var(--muted); font-size: 14px; }
   .card .price { color: var(--accent2); font-weight: 700; font-size: 18px; margin-top: 12px; }
-  .endpoints-table { max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; }
+  .endpoints-table { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
   .endpoints-table h2 { text-align: center; font-size: 28px; margin-bottom: 24px; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { text-align: left; color: var(--muted); font-weight: 500; padding: 12px 16px; border-bottom: 1px solid var(--border); }
@@ -881,10 +914,10 @@ LANDING_HTML = """<!DOCTYPE html>
 </head>
 <body>
 <div class="hero">
-  <h1>x402 Crypto API</h1>
-  <p>The AI agent crypto data layer. 30+ endpoints covering prices, DEX, DeFi, wallets, and whale alerts. Pay per request in USDC on Base.</p>
+  <h1>x402 Crypto + AI API</h1>
+  <p>AI agent crypto data layer + vertical AI micro-SaaS. 35 endpoints covering prices, DEX, DeFi, wallets, whale alerts, legal review, tax estimation, invoice parsing, and sentiment analysis. Pay per request in USDC on Base.</p>
   <div class="badge-row">
-    <div class="badge"><span>30+</span> Endpoints</div>
+    <div class="badge"><span>35</span> Endpoints</div>
     <div class="badge"><span>$0.002</span> Starting Price</div>
     <div class="badge"><span>USDC</span> on Base</div>
     <div class="badge"><span>No</span> API Key Needed</div>
@@ -926,6 +959,11 @@ LANDING_HTML = """<!DOCTYPE html>
       <p>Token screener, multi-wallet portfolio, top movers, batch prices. Built for AI agents.</p>
       <div class="price">$0.002 — $0.008</div>
     </div>
+    <div class="card" style="border-color: var(--accent2);">
+      <h3 style="color: var(--accent2);">⚡ AI Micro-SaaS (NEW v4.0)</h3>
+      <p>Vertical AI services for AI agents: legal contract review, Indonesian tax estimator, invoice parser, multi-language sentiment. Powered by Xiaomi MiMo (mimo-v2-flash).</p>
+      <div class="price">$0.005 — $0.020</div>
+    </div>
   </div>
 </div>
 
@@ -965,6 +1003,11 @@ LANDING_HTML = """<!DOCTYPE html>
       <tr><td><code>GET /api/v1/token/:c/:a/info</code></td><td>$0.003</td><td><span class="paid-badge">PAID</span></td></tr>
       <tr><td><code>GET /api/v1/gas/:chain</code></td><td>$0.002</td><td><span class="paid-badge">PAID</span></td></tr>
       <tr><td><code>GET /api/v1/block/:chain/latest</code></td><td>$0.002</td><td><span class="paid-badge">PAID</span></td></tr>
+      <tr><td colspan="3" style="padding: 16px; color: var(--accent2); font-weight: 700;">⚡ AI Micro-SaaS v4.0 (POST endpoints)</td></tr>
+      <tr><td><code>POST /api/v1/ai/sentiment</code></td><td>$0.005</td><td><span class="paid-badge">PAID</span></td></tr>
+      <tr><td><code>POST /api/v1/ai/invoice-ocr</code></td><td>$0.010</td><td><span class="paid-badge">PAID</span></td></tr>
+      <tr><td><code>POST /api/v1/ai/tax-id</code></td><td>$0.015</td><td><span class="paid-badge">PAID</span></td></tr>
+      <tr><td><code>POST /api/v1/ai/legal-review</code></td><td>$0.020</td><td><span class="paid-badge">PAID</span></td></tr>
     </tbody>
   </table>
 </div>
