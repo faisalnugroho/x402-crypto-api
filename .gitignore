@@ -1,9 +1,13 @@
-
+# .gitignore
 .env
 .cdp_key
 .cdp_secret
-.etherscan_key
-tracker.db
+venv/
 __pycache__/
 *.pyc
-venv/
+*.log
+*.db
+*.sqlite
+.sol
+keys/
+.DS_Store
