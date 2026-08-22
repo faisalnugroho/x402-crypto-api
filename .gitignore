@@ -11,3 +11,7 @@ __pycache__/
 .sol
 keys/
 .DS_Store
+.secrets/
+.buyer_wallet
+.bazaar_state.json
+*.txt
