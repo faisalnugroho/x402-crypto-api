@@ -18,11 +18,11 @@ Pay-per-request crypto data & AI micro-SaaS on Base mainnet — AI agents pay in
 
 ## 3. Website / Demo URL
 
-http://YOUR_VPS_IP:4020
+https://civilization-jacket-released-desperate.trycloudflare.com
 (ganti dengan IP/domain publik setelah deploy)
 
-Health check: http://YOUR_VPS_IP:4020/health
-Docs: http://YOUR_VPS_IP:4020/docs
+Health check: https://civilization-jacket-released-desperate.trycloudflare.com/health
+Docs: https://civilization-jacket-released-desperate.trycloudflare.com/docs
 
 ---
 
@@ -58,8 +58,11 @@ Facilitator: Coinbase CDP (api.cdp.coinbase.com)
 - 40+ endpoints across 6 categories
 - CDP facilitator integration verified (HTTP 200 /supported)
 - Builder-code `bc_1g4yopsy` declared in all 402 responses
-
-*Awaiting final test transaction to include tx hash. Will update before submit.*
+- **Real onchain payment verified 2026-08-17**: buyer paid $0.002 USDC for `/api/v1/gas`, settled by CDP facilitator on Base mainnet
+  - Settlement tx: `0x8f0a77ea6bab61c7a38be043beba914863ebe7ddaaaeb4ae68b9362e8676a66d`
+  - Swap tx (buyer funded, ETH→USDC): `0x69217dda2eecabb83677d357117633bac7cb1ba815c363abcfd3315f8e1af289`
+  - Payer: `0xb6C78976Fb49f24efFBE5B584dDb5AbC062d3A07` (Base mainnet)
+  - Seller received: `0xeb350f1692b16c8b7b02c66dedb76d018f6a9662`
 
 ---
 
@@ -106,7 +109,7 @@ This is not a speculative project. The seller is live, the facilitator is connec
 
 ## Catatan Internal (jangan di-copy ke form)
 
-- [ ] Ganti YOUR_VPS_IP dengan IP publik setelah deploy
-- [ ] Tambah tx hash setelah real payment test
-- [ ] Screenshot /docs dan /health kalau form ada field upload
+- [x] Ganti YOUR_VPS_IP dengan IP publik setelah deploy
+- [x] Tambah tx hash setelah real payment test
+- [x] Screenshot /docs dan /health kalau form ada field upload
 - [ ] Cek deadline form — tweet bilang "rolling basis"

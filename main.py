@@ -598,6 +598,69 @@ async def shadowfeed_manifest():
         return JSONResponse({"error": "Manifest not found"}, status_code=404)
 
 
+@app.get("/llms.txt", response_class=HTMLResponse)
+async def llms_txt():
+    """llms.txt — LLM discovery file for AI agents."""
+    base = PUBLIC_URL
+    lines = [
+        "# x402 Crypto Intelligence API",
+        "",
+        "> AI agent crypto data API — pay per request in USDC on Base via x402 protocol.",
+        "> 35+ endpoints: prices, DEX, DeFi, Fear & Greed, whale alerts, wallet analytics, AI micro-SaaS.",
+        "> No API keys, no signup. Payment is the authentication.",
+        "",
+        "## Payment",
+        f"- Protocol: x402 v2 (HTTP 402 Payment Required)",
+        "- Network: Base mainnet (eip155:8453)",
+        "- Asset: USDC (0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)",
+        f"- Pay to: {PAY_TO}",
+        "- Price range: $0.002–$0.010 per request",
+        "",
+        "## Free Endpoints (no payment)",
+        f"- GET {base}/api/v1/free/health — API health + cache stats",
+        f"- GET {base}/api/v1/free/fear-greed — Fear & Greed Index (basic)",
+        f"- GET {base}/api/v1/free/gas — ETH gas prices (basic)",
+        f"- GET {base}/api/v1/free/price/{{coin_id}} — Price for top 20 coins",
+        f"- GET {base}/api/v1/free/market — Global market overview (basic)",
+        f"- GET {base}/api/v1/free/catalog — Full endpoint catalog",
+        "",
+        "## Paid Endpoints (x402)",
+        f"- GET {base}/api/v1/price/{{coin_id}} — $0.003 — Token price & 24h market data",
+        f"- GET {base}/api/v1/trending — $0.005 — Trending crypto tokens",
+        f"- GET {base}/api/v1/market — $0.003 — Global crypto market overview",
+        f"- GET {base}/api/v1/top-coins — $0.005 — Top N coins by market cap",
+        f"- GET {base}/api/v1/search — $0.002 — Search coins by name/symbol",
+        f"- GET {base}/api/v1/defi — $0.005 — Top DeFi protocols by TVL",
+        f"- GET {base}/api/v1/fear-greed — $0.002 — Fear & Greed Index (full)",
+        f"- GET {base}/api/v1/gas — $0.002 — Gas prices (multi-chain)",
+        f"- GET {base}/api/v1/dex/token/{{chain}}/{{address}} — $0.003 — DEX token data",
+        f"- GET {base}/api/v1/dex/pair/{{chain}}/{{pair_id}} — $0.003 — DEX pair data",
+        f"- GET {base}/api/v1/dex/search — $0.002 — DEX search",
+        f"- GET {base}/api/v1/dex/trending — $0.003 — DEX trending",
+        f"- GET {base}/api/v1/protocols — $0.003 — DeFiLlama protocols",
+        f"- GET {base}/api/v1/tvl/{{protocol}} — $0.002 — Protocol TVL",
+        f"- GET {base}/api/v1/chains — $0.002 — Chain TVL rankings",
+        f"- GET {base}/api/v1/wallet/{{chain}}/{{address}} — $0.005 — Wallet overview",
+        f"- GET {base}/api/v1/whale/ethereum — $0.010 — Whale alerts (Ethereum)",
+        f"- GET {base}/api/v1/sentiment — $0.005 — Full sentiment analysis",
+        f"- GET {base}/api/v1/screener — $0.005 — Token screener",
+        "",
+        "## How to Pay",
+        "1. Send GET request to any paid endpoint",
+        "2. Receive HTTP 402 with `payment-required` header (base64 JSON)",
+        "3. Sign payment authorization with your wallet (EIP-3009 transferWithAuthorization)",
+        "4. Retry request with `PAYMENT-SIGNATURE` header",
+        "5. Receive data + settlement receipt",
+        "",
+        "## Links",
+        f"- Docs: {base}/docs",
+        f"- OpenAPI: {base}/openapi.json",
+        f"- Discovery: {base}/.well-known/x402.json",
+        "- GitHub: https://github.com/faisalnugroho/x402-crypto-api",
+    ]
+    return "\n".join(lines)
+
+
 @app.get("/.well-known/x402.json")
 async def x402_discovery():
     """x402 discovery metadata for agent crawlers and directories."""

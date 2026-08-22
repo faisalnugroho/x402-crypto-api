@@ -3,12 +3,13 @@
 x402 Crypto Intelligence MCP Server
 Exposes 31 crypto data endpoints as MCP tools for AI agents.
 """
+import os
 import httpx
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("x402-crypto", description="Crypto intelligence data via x402 protocol. Prices, DEX, DeFi, wallets, whale alerts.")
 
-BASE = "http://localhost:4020"
+BASE = os.environ.get("X402_BASE_URL", "https://civilization-jacket-released-desperate.trycloudflare.com")
 client = httpx.AsyncClient(timeout=30.0)
 
 async def _get(path: str, params: dict = None) -> dict:
